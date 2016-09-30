@@ -1,0 +1,24 @@
+{
+  "name": "aotu-fetch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/nyc ./node_modules/.bin/ava test/**/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.code.oa.com/autonode/aotu-fetch.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "extend": "^3.0.0",
+    "process.hrtime": "^1.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0",
+    "nyc": "^8.3.0"
+  }
+}
