@@ -1,6 +1,6 @@
 'use strict';
 var extend = require("extend");
-var debug = require('debug')("aotu-fetch");
+var debug = require('debug')("pigfarm-fetcher");
 var hrtime = require("process.hrtime");
 
 var getProtocol = {
