@@ -78,8 +78,9 @@ function buildRequestMethod(config) {
 
 			if (isInvalid(param) || err) {
 				debug('fixParam failed', param);
+				err = err || new Error('fixParam(fixBefore) returned ' + data);
 				param = data; // revert the param to before the fixParam status
-				return reject(err || new Error('fixParam(fixBefore) returned ' + param));
+				return reject(err);
 			}
 
 			debug('start fixUrl');
@@ -145,7 +146,7 @@ function buildRequestMethod(config) {
 			}
 			// if fixResult returned false, treat as an error
 			if (isInvalid(result)) {
-				throw new Error('fixResult(fixAfter) returned false');
+				throw new Error('fixResult(fixAfter) returned' + result);
 			}
 			timestat.fixResult = hrtime(timestat.fixResult, 'us');
 			debug('called fixResult');
@@ -176,7 +177,7 @@ function buildRequestMethod(config) {
 			}
 
 			timestat.onError = hrtime(timestat.onError, 'us');
-			debug('called onError');
+			debug('called onError', ret);
 			if (err) {
 				throw err
 
