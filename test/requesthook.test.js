@@ -79,3 +79,16 @@ test('return non-error in onError', async function() {
 	})();
 	assert(data.result.success);
 });
+test('return empty string in onError', async function () {
+
+	var data = await autoFetch.build({
+		url: 'timeout://',
+		fixBefore: function () {
+		    throw new Error('123')
+		},
+		onError: function () {
+		    return ''
+		}
+	})();
+	assert.equal(data.result, '')
+});
