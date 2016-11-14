@@ -170,7 +170,7 @@ function buildRequestMethod(config) {
 			}
 			// if onError returned something and it is not an Error
 			// treat it as a result
-			if (err && !(err instanceof Error)) {
+			if (!isInvalid(err) && !(err instanceof Error)) {
 				var ret = err;
 				err = null;
 			}
