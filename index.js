@@ -18,17 +18,6 @@ function buildRequestMethod(config) {
 		config = {url: config};
 	}
 
-	// default hook function
-	config.fixParam = config.fixParam || config.fixBefore || function (a) {
-			return a
-		};
-	config.fixResult = config.fixResult || config.fixAfter || function (a) {
-			return a;
-		};
-	config.onError = config.onError || function (a) {
-			return false;
-		};
-
 	// get protocol
 	var protocol = getProtocol.parse(config.url).protocol;
 
@@ -49,6 +38,17 @@ function buildRequestMethod(config) {
 
 	urltemplate = new Function("var data = arguments[0]; return " + urltemplate);
 	compiler && compiler(config);
+
+	// default hook function
+	config.fixParam = config.fixParam || config.fixBefore || function (a) {
+			return a
+		};
+	config.fixResult = config.fixResult || config.fixAfter || function (a) {
+			return a;
+		};
+	config.onError = config.onError || function (a) {
+			return false;
+		};
 	/**
 	 * here is the function will be returned from this factory function.
 	 * data: request data

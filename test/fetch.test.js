@@ -55,3 +55,18 @@ test('unsupport protocol', async function() {
 	}
 	assert(false);
 });
+
+autoFetch.registerRequestor('errorstr', function (cfg, callback) {
+	setTimeout(()=> callback(new Error, ''), 500)
+});
+test('return emptystring when error', async function() {
+
+	var result = await autoFetch.build({
+		url: 'errorstr://',
+		onError: function () {
+		    return ''
+		}
+	})();
+	
+	assert.equal(result.result, '');
+});
