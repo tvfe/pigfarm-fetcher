@@ -1,7 +1,7 @@
 {
   "name": "pigfarm-fetcher",
-  "version": "1.0.2",
-  "description": "",
+  "version": "1.0.4",
+  "description": "以伪协议的形式配置你的请求",
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/nyc ./node_modules/.bin/ava test/**/*.test.js"
