@@ -78,7 +78,7 @@ function buildRequestMethod(config) {
 
 			if (isInvalid(param) || err) {
 				debug('fixParam failed', param);
-				err = err || new Error('fixParam(fixBefore) returned ' + data);
+				err = err || new Error('fixParam(fixBefore) returned ' + param);
 				param = data; // revert the param to before the fixParam status
 				return reject(err);
 			}
