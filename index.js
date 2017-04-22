@@ -13,20 +13,23 @@ var getProtocol = {
 };
 
 function buildRequestMethod(config) {
-	// compat when user only pass the url as config
+	// 兼容直接传入url的情况
 	if (typeof config == 'string') {
 		config = {url: config};
 	}
 
-	// get protocol
+	// 从url中获取出协议
 	var protocol = getProtocol.parse(config.url).protocol;
 
 	var requestor;
+	// 检查是否有对应的requestor
 	if (!(requestors[protocol] || requestors['default'])) {
 		throw new Error('unsupport protocol: ' + protocol);
 	} else {
 		requestor = requestors[protocol] || requestors['default'];
 	}
+
+	// 找到对应的配置预处理器
 	var compiler = compilers[protocol];
 
 	var urltemplate = config.url;
@@ -37,9 +40,10 @@ function buildRequestMethod(config) {
 	urltemplate = '"' + urltemplate + '"';
 
 	urltemplate = new Function("var data = arguments[0]; return " + urltemplate);
+	// 预处理传入的请求配置
 	compiler && compiler(config);
 
-	// default hook function
+	// 默认的请求逻辑处理hook
 	config.fixParam = config.fixParam || config.fixBefore || function (a) {
 			return a
 		};
@@ -50,20 +54,20 @@ function buildRequestMethod(config) {
 			return false;
 		};
 	/**
-	 * here is the function will be returned from this factory function.
-	 * data: request data
-	 * callback: callback after the request is ended
+	 * 返回出去的函数
+	 * @param data 请求数据
+	 * @return promise
 	 */
 	return function (data) {
-		var timestat = {}; // request time stat
-		var param; // real request param
-		var result;
+		var timestat = {};  // 请求的耗时数据
+		var param; 		    // 要传入请求器的数据
+		var result;			// 返回出来的数据
 
 		return new Promise((resolve, reject)=> {
 			data = data || {};
 
-			// invoke the fixParam to adjust the request data
-			// the context of fix functions will be the same as this function.
+			// 调用fixBefore来调整处理请求数据
+			// fixBefore的this指针与调用该函数的this指针相同
 			var err;
 
 			debug('call fixParam');
@@ -79,13 +83,13 @@ function buildRequestMethod(config) {
 			if (isInvalid(param) || err) {
 				debug('fixParam failed', param);
 				err = err || new Error('fixParam(fixBefore) returned ' + param);
-				param = data; // revert the param to before the fixParam status
+				param = data; // 把请求参数回复到调用fixBefore之前的状态
 				return reject(err);
 			}
 
 			debug('start fixUrl');
 			timestat.fixUrl = hrtime();
-			// make a copy for request data;
+			// 复制一份请求数据
 			var requestData;
 			if (param instanceof Array) {
 				requestData = param.slice(0);
@@ -93,13 +97,13 @@ function buildRequestMethod(config) {
 				requestData = extend({}, param, config.data);
 			}
 
-			// if there is symbol like {var}, replace it
+			// 如果url上存在{var}这样的配置，就替换掉
 			var url = urltemplate(param);
 
 			timestat.fixUrl = hrtime(timestat.fixUrl, 'us');
 			debug('end fixUrl');
 
-			// make a copy for config
+			// 深拷贝一份请求配置
 			var requestCfg = {};
 			Object.keys(config).forEach(function (key) {
 				if (typeof config[key] != 'function') {
@@ -121,10 +125,12 @@ function buildRequestMethod(config) {
 			debug('end globalBeforeHook');
 
 			timestat.request = hrtime();
-			// call requestors.
+			// 调用请求器
 			debug('do request');
 			try {
-				requestor.call(this, requestCfg, function (err, res) {
+				requestor.call({
+					log: onlog.bind(this)
+				}, requestCfg, function (err, res) {
 				    err ? reject(err) : resolve(res);
 				});
 			} catch (e) {
@@ -255,6 +261,15 @@ factory.registerHook = function (type, cb) {
 
 	} else {
 		throw new Error('invalid hook');
+	}
+};
+
+function onlog(text) {
+    console.log(text);
+}
+factory.on = function (event, hook) {
+    if (event == 'log' && typeof hook == 'function') {
+		onlog = hook;
 	}
 };
 
