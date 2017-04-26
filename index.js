@@ -265,7 +265,7 @@ factory.registerHook = function (type, cb) {
 };
 
 function onlog(text) {
-    console.log(text);
+    debug(text);
 }
 factory.on = function (event, hook) {
     if (event == 'log' && typeof hook == 'function') {
