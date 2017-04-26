@@ -103,7 +103,7 @@ function buildRequestMethod(config) {
 			timestat.fixUrl = hrtime(timestat.fixUrl, 'us');
 			debug('end fixUrl');
 
-			// 深拷贝一份请求配置
+			// 拷贝一份请求配置
 			var requestCfg = {};
 			Object.keys(config).forEach(function (key) {
 				if (typeof config[key] != 'function') {
@@ -129,7 +129,7 @@ function buildRequestMethod(config) {
 			debug('do request');
 			try {
 				requestor.call({
-					log: onlog.bind(this)
+					log: onlog.bind(this, requestCfg)
 				}, requestCfg, function (err, res) {
 				    err ? reject(err) : resolve(res);
 				});
@@ -264,8 +264,8 @@ factory.registerHook = function (type, cb) {
 	}
 };
 
-function onlog(text) {
-    debug(text);
+function onlog(config, log) {
+    debug(log);
 }
 factory.on = function (event, hook) {
     if (event == 'log' && typeof hook == 'function') {
