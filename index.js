@@ -203,7 +203,7 @@ function buildRequestMethod(config) {
 			// otherwise, return result or null
 			return {
 				result: isInvalid(ret) ? null : ret,
-				timestat
+				timestat: timestat
 			}
 
 		}, function (err) {
