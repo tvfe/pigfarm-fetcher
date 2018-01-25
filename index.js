@@ -15,7 +15,7 @@ var getProtocol = {
 function buildRequestMethod(config) {
 	// 兼容直接传入url的情况
 	if (typeof config == 'string') {
-		config = {url: config};
+		config = { url: config };
 	}
 
 	// 从url中获取出协议
@@ -45,14 +45,14 @@ function buildRequestMethod(config) {
 
 	// 默认的请求逻辑处理hook
 	config.fixParam = config.fixParam || config.fixBefore || function (a) {
-			return a
-		};
+		return a
+	};
 	config.fixResult = config.fixResult || config.fixAfter || function (a) {
-			return a;
-		};
+		return a;
+	};
 	config.onError = config.onError || function (a) {
-			return false;
-		};
+		return false;
+	};
 	/**
 	 * 返回出去的函数
 	 * @param data 请求数据
@@ -63,7 +63,8 @@ function buildRequestMethod(config) {
 		var param; 		    // 要传入请求器的数据
 		var result;			// 返回出来的数据
 
-		return new Promise((resolve, reject)=> {
+		var self = this;
+		return new Promise(function (resolve, reject) {
 			data = data || {};
 
 			// 调用fixBefore来调整处理请求数据
@@ -73,7 +74,7 @@ function buildRequestMethod(config) {
 			debug('call fixParam');
 			timestat.fixParam = hrtime();
 			try {
-				param = config.fixParam.call(this, data);
+				param = config.fixParam.call(self, data);
 			} catch (e) {
 				err = e;
 			}
@@ -129,22 +130,22 @@ function buildRequestMethod(config) {
 			debug('do request');
 			try {
 				requestor.call({
-					log: onlog.bind(this, requestCfg)
+					log: onlog.bind(self, requestCfg)
 				}, requestCfg, function (err, res) {
-				    err ? reject(err) : resolve(res);
+					err ? reject(err) : resolve(res);
 				});
 			} catch (e) {
 				reject(e);
 			}
 
-		}).then(res=> {
+		}).then(function (res) {
 			timestat.request = hrtime(timestat.request, 'us');
 
 			debug('call fixResult');
 			timestat.fixResult = hrtime();
 			try {
 				// check if the result is legal by invoking fixResult。
-				result = config.fixResult.call(this, res, param, {
+				result = config.fixResult.call(self, res, param, {
 					time: timestat.request
 				});
 			} catch (e) {
@@ -158,11 +159,11 @@ function buildRequestMethod(config) {
 			debug('called fixResult');
 			return result
 
-		}, e=> {
+		}, function (e) {
 			timestat.request = hrtime(timestat.request, 'us');
 			throw e
 
-		}).catch(err=> {
+		}).catch(function (err) {
 			// call oEerror
 
 			// if there is an error, use the onError fixer
@@ -171,7 +172,7 @@ function buildRequestMethod(config) {
 			debug('call onError');
 			timestat.onError = hrtime();
 			try {
-				err = config.onError.call(this, err, result, param);
+				err = config.onError.call(self, err, result, param);
 			} catch (e) {
 				err = e;
 			}
@@ -265,10 +266,10 @@ factory.registerHook = function (type, cb) {
 };
 
 function onlog(config, log) {
-    debug(log);
+	debug(log);
 }
 factory.on = function (event, hook) {
-    if (event == 'log' && typeof hook == 'function') {
+	if (event == 'log' && typeof hook == 'function') {
 		onlog = hook;
 	}
 };
@@ -276,5 +277,5 @@ factory.on = function (event, hook) {
 module.exports = factory;
 
 function isInvalid(e) {
-    return e === null || e === void 0 || e === false;
+	return e === null || e === void 0 || e === false;
 }
