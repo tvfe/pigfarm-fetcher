@@ -131,8 +131,12 @@ function buildRequestMethod(config) {
 			try {
 				requestor.call({
 					log: onlog.bind(self, requestCfg)
-				}, requestCfg, function (err, res) {
-					err ? reject(err) : resolve(res);
+				}, requestCfg, function (err, res, requestinfo) {
+					requestinfo = requestinfo || {};
+					err ? reject(err) : resolve({
+						data: res,
+						requestinfo: requestinfo
+					});
 				});
 			} catch (e) {
 				reject(e);
@@ -145,9 +149,9 @@ function buildRequestMethod(config) {
 			timestat.fixResult = hrtime();
 			try {
 				// check if the result is legal by invoking fixResult。
-				result = config.fixResult.call(self, res, param, {
+				result = config.fixResult.call(self, res.data, param, extend({
 					time: timestat.request
-				});
+				}, res.requestinfo));
 			} catch (e) {
 				throw e;
 			}
