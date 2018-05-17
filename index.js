@@ -155,11 +155,15 @@ function buildRequestMethod(config) {
 					time: timestat.request
 				}, res.requestinfo));
 			} catch (e) {
-				throw e;
+				throw extend(e, {
+					requestinfo: res.requestinfo
+				});
 			}
 			// if fixResult returned false, treat as an error
 			if (isInvalid(result)) {
-				throw new Error('fixResult(fixAfter) returned' + result);
+				throw extend(new Error('fixResult(fixAfter) returned' + result), {
+					requestinfo: res.requestinfo
+				});
 			}
 			timestat.fixResult = hrtime(timestat.fixResult, 'us');
 			debug('called fixResult');
