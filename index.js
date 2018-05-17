@@ -133,7 +133,9 @@ function buildRequestMethod(config) {
 					log: onlog.bind(self, requestCfg)
 				}, requestCfg, function (err, res, requestinfo) {
 					requestinfo = requestinfo || {};
-					err ? reject(err) : resolve({
+					err ? reject(extend(err, { // 出错时把请求信息挂在err上
+						requestinfo: requestinfo
+					})) : resolve({
 						data: res,
 						requestinfo: requestinfo
 					});
