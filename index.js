@@ -123,6 +123,7 @@ function buildRequestMethod(config) {
 				}
 			});
 			requestCfg.data = requestData;
+			requestCfg.originalData = data;
 			debug('end globalBeforeHook');
 
 			timestat.request = hrtime();
