@@ -62,6 +62,7 @@ function buildRequestMethod(config) {
 		var timestat = {};  // 请求的耗时数据
 		var param; 		    // 要传入请求器的数据
 		var result;			// 返回出来的数据
+		var requestCfg = {};// 传给请求器的配置
 
 		var self = this;
 		return new Promise(function (resolve, reject) {
@@ -105,7 +106,6 @@ function buildRequestMethod(config) {
 			debug('end fixUrl');
 
 			// 拷贝一份请求配置
-			var requestCfg = {};
 			Object.keys(config).forEach(function (key) {
 				if (typeof config[key] != 'function') {
 					requestCfg[key] = config[key];
@@ -168,6 +168,19 @@ function buildRequestMethod(config) {
 			}
 			timestat.fixResult = hrtime(timestat.fixResult, 'us');
 			debug('called fixResult');
+
+			debug('start globalAfterHook');
+			globalAfterHook.forEach(function (hook) {
+				var hookData = extend({}, res.data);
+				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
+				var hookRequestCfg = extend({}, requestCfg);
+				try {
+					hook(hookData, hookRequestInfo, hookRequestCfg);
+				} catch (e) {
+				}
+			});
+			debug('end globalAfterHook');
+
 			return result
 
 		}, function (e) {
@@ -175,7 +188,16 @@ function buildRequestMethod(config) {
 			throw e
 
 		}).catch(function (err) {
-			// call oEerror
+			debug('start globalErrorHook');
+			globalErrorHook.forEach(function (hook) {
+				var hookError = extend({}, err);
+				var hookRequestCfg = extend({}, hookRequestCfg);
+				try {
+					hook(hookError, hookRequestCfg);
+				} catch (e) {
+				}
+			});
+			debug('end globalErrorHook');
 
 			// if there is an error, use the onError fixer
 			//
@@ -263,13 +285,17 @@ factory.registerCompiler = function (protocol, fn) {
 };
 
 var globalBeforeHook = [];
-// var afterHook = [];
+var globalAfterHook = []; // 不准用来做修改数据的操作，支持业务做一些数据上报、监控等额外操作
+var globalErrorHook = []; // 不准用来做修改数据的操作
 factory.registerHook = function (type, cb) {
 	if (type == 'before') {
 		globalBeforeHook.push(cb);
 
-		// } else if (type == 'after') {
-		//    afterHook.push(cb);
+	} else if (type == 'after') {
+		globalAfterHook.push(cb);
+
+	} else if (type == 'error') {
+		globalErrorHook.push(cb);
 
 	} else {
 		throw new Error('invalid hook');
@@ -279,6 +305,7 @@ factory.registerHook = function (type, cb) {
 function onlog(config, log) {
 	debug(log);
 }
+
 factory.on = function (event, hook) {
 	if (event == 'log' && typeof hook == 'function') {
 		onlog = hook;

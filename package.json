@@ -1,6 +1,6 @@
 {
   "name": "pigfarm-fetcher",
-  "version": "1.0.14",
+  "version": "1.1.0-beta",
   "description": "以伪协议的形式配置你的请求",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://git.code.oa.com/autonode/aotu-fetch.git"
+    "url": "https://github.com/tvfe/pigfarm-fetcher.git"
   },
   "author": "",
   "license": "ISC",
