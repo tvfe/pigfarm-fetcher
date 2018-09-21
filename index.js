@@ -172,10 +172,12 @@ function buildRequestMethod(config) {
 			debug('start globalAfterHook');
 			globalAfterHook.forEach(function (hook) {
 				var hookData = extend({}, res.data);
+				var hookParam = extend({}, param);
 				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
 				var hookRequestCfg = extend({}, requestCfg);
+
 				try {
-					hook(hookData, hookRequestInfo, hookRequestCfg);
+					hook(hookData, hookParam, hookRequestInfo, hookRequestCfg);
 				} catch (e) {
 				}
 			});
@@ -191,9 +193,11 @@ function buildRequestMethod(config) {
 			debug('start globalErrorHook');
 			globalErrorHook.forEach(function (hook) {
 				var hookError = extend({}, err);
-				var hookRequestCfg = extend({}, hookRequestCfg);
+				var hookResult = extend({}, result);
+				var hookParam = extend({}, param);
+				var hookRequestCfg = extend({}, requestCfg);
 				try {
-					hook(hookError, hookRequestCfg);
+					hook(hookError, hookResult, hookParam, hookRequestCfg);
 				} catch (e) {
 				}
 			});
@@ -284,6 +288,7 @@ factory.registerCompiler = function (protocol, fn) {
 	compilers[protocol] = fn;
 };
 
+// 全局钩子的参数与局部钩子一样，但是多了一个请求配置的参数
 var globalBeforeHook = [];
 var globalAfterHook = []; // 不准用来做修改数据的操作，支持业务做一些数据上报、监控等额外操作
 var globalErrorHook = []; // 不准用来做修改数据的操作
