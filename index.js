@@ -192,12 +192,11 @@ function buildRequestMethod(config) {
 		}).catch(function (err) {
 			debug('start globalErrorHook');
 			globalErrorHook.forEach(function (hook) {
-				var hookError = extend({}, err);
 				var hookResult = extend({}, result);
 				var hookParam = extend({}, param);
 				var hookRequestCfg = extend({}, requestCfg);
 				try {
-					hook(hookError, hookResult, hookParam, hookRequestCfg);
+					hook(err, hookResult, hookParam, hookRequestCfg);
 				} catch (e) {
 				}
 			});
