@@ -135,13 +135,15 @@ function buildRequestMethod(config) {
 				}, requestCfg, function (err, res, requestinfo) {
 					requestinfo = requestinfo || {};
 					err ? reject(extend(err, { // 出错时把请求信息挂在err上
-						requestinfo: requestinfo
+						requestinfo: requestinfo,
+						fetcherErrorType: 'requestor'
 					})) : resolve({
 						data: res,
 						requestinfo: requestinfo
 					});
 				});
 			} catch (e) {
+				e.fetcherErrorType = 'requestor'; // 确认是请求器的错误
 				reject(e);
 			}
 
@@ -150,6 +152,21 @@ function buildRequestMethod(config) {
 
 			debug('call fixResult');
 			timestat.fixResult = hrtime();
+
+			debug('start globalAfterHook');
+			globalAfterHook.forEach(function (hook) {
+				var hookData = extend({}, res.data);
+				var hookParam = extend({}, param);
+				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
+				var hookRequestCfg = extend({}, requestCfg);
+
+				try {
+					hook(hookData, hookParam, hookRequestInfo, hookRequestCfg);
+				} catch (e) {
+				}
+			});
+			debug('end globalAfterHook');
+
 			try {
 				// check if the result is legal by invoking fixResult。
 				result = config.fixResult.call(self, res.data, param, extend({
@@ -168,20 +185,6 @@ function buildRequestMethod(config) {
 			}
 			timestat.fixResult = hrtime(timestat.fixResult, 'us');
 			debug('called fixResult');
-
-			debug('start globalAfterHook');
-			globalAfterHook.forEach(function (hook) {
-				var hookData = extend({}, res.data);
-				var hookParam = extend({}, param);
-				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
-				var hookRequestCfg = extend({}, requestCfg);
-
-				try {
-					hook(hookData, hookParam, hookRequestInfo, hookRequestCfg);
-				} catch (e) {
-				}
-			});
-			debug('end globalAfterHook');
 
 			return result
 
