@@ -155,13 +155,10 @@ function buildRequestMethod(config) {
 
 			debug('start globalAfterHook');
 			globalAfterHook.forEach(function (hook) {
-				var hookData = extend({}, res.data);
-				var hookParam = extend({}, param);
 				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
-				var hookRequestCfg = extend({}, requestCfg);
 
 				try {
-					hook(hookData, hookParam, hookRequestInfo, hookRequestCfg);
+					hook(res.data, param, hookRequestInfo, requestCfg);
 				} catch (e) {
 				}
 			});
