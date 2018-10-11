@@ -117,7 +117,7 @@ function buildRequestMethod(config) {
 			globalBeforeHook.forEach(function (hook) {
 				var hookData = requestData;
 				try {
-					hookData = hook(hookData);
+					hookData = hook.call(self, hookData);
 					hookData != void 0 && (requestData = hookData);
 				} catch (e) {
 				}
@@ -158,7 +158,7 @@ function buildRequestMethod(config) {
 				var hookRequestInfo = extend({}, {time: timestat.request}, res.requestinfo);
 
 				try {
-					hook(res.data, param, hookRequestInfo, requestCfg);
+					hook.call(self, res.data, param, hookRequestInfo, requestCfg);
 				} catch (e) {
 				}
 			});
@@ -196,7 +196,7 @@ function buildRequestMethod(config) {
 				var hookParam = extend({}, param);
 				var hookRequestCfg = extend({}, requestCfg);
 				try {
-					hook(err, hookResult, hookParam, hookRequestCfg);
+					hook.call(self, err, hookResult, hookParam, hookRequestCfg);
 				} catch (e) {
 				}
 			});
