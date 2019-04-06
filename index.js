@@ -29,9 +29,6 @@ function buildRequestMethod(config) {
 		requestor = requestors[protocol] || requestors['default'];
 	}
 
-	// 找到对应的配置预处理器
-	var compiler = compilers[protocol];
-
 	var urltemplate = config.url;
 	var matcher;
 	while (matcher = urltemplate.match(/(\{([\w\.]*)\})/)) {
@@ -41,7 +38,7 @@ function buildRequestMethod(config) {
 
 	urltemplate = new Function("var data = arguments[0]; return " + urltemplate);
 	// 预处理传入的请求配置
-	compiler && compiler(config);
+	requestor.compiler && requestor.compiler(config);
 
 	// 默认的请求逻辑处理hook
 	config.fixParam = config.fixParam || config.fixBefore || function (a) {
@@ -130,9 +127,7 @@ function buildRequestMethod(config) {
 			// 调用请求器
 			debug('do request');
 			try {
-				requestor.call({
-					log: onlog.bind(self, requestCfg)
-				}, requestCfg, function (err, res, requestinfo) {
+				requestor.request(requestCfg, function (err, res, requestinfo) {
 					requestinfo = requestinfo || {};
 					err ? reject(extend(err, { // 出错时把请求信息挂在err上
 						requestinfo: requestinfo,
@@ -251,7 +246,6 @@ function buildRequestMethod(config) {
 
 
 var requestors = {};
-var compilers = {};
 
 /**
  * entry
@@ -276,15 +270,10 @@ factory.build = buildRequestMethod;
 
 /**
  * @param protocol: which protocol will the requestor serve.
- * @param fn: request behavior
+ * @param requestor: an object {request: fn, compile: fn}
  */
-
-factory.registerRequestor = function (protocol, fn) {
-	requestors[protocol] = fn;
-};
-
-factory.registerCompiler = function (protocol, fn) {
-	compilers[protocol] = fn;
+factory.registerRequestor = function (protocol, requestor) {
+	requestors[protocol] = requestor;
 };
 
 // 全局钩子的参数与局部钩子一样，但是多了一个请求配置的参数
@@ -303,16 +292,6 @@ factory.registerHook = function (type, cb) {
 
 	} else {
 		throw new Error('invalid hook');
-	}
-};
-
-function onlog(config, log) {
-	debug(log);
-}
-
-factory.on = function (event, hook) {
-	if (event == 'log' && typeof hook == 'function') {
-		onlog = hook;
 	}
 };
 
