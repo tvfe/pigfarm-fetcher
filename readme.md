@@ -29,9 +29,22 @@ fetcher.registerRequestor('http', {
 
 2. 通过配置创建请求
 ```
+// 单个
 var requestIndex = fetcher.build({
     url: 'http://v.qq.com?ptag={ptag}'
 })
+// 批量
+var requestors = fetcher({
+    index: {
+        url: 'http://v.qq.com?ptag={ptag}'
+    },
+    channel: {
+        url: 'http://v.qq.com/channel/tv'
+    }
+})
+requestors.index({
+    ptag: 'vv'
+}).then(res => { console.log(res); });
 ```
 
 3. 执行请求
