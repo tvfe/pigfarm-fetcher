@@ -276,6 +276,13 @@ factory.registerRequestor = function (protocol, requestor) {
 	requestors[protocol] = requestor;
 };
 
+/**
+ * 2.0 版本后不支持
+ */
+factory.registerCompiler = function () {
+	throw new Error('pigfarm-fetcher@2.0 版本之后不再支持独立注册编译器，请降级到pigfarm-fetcher@1.0使用。');
+}
+
 // 全局钩子的参数与局部钩子一样，但是多了一个请求配置的参数
 var globalBeforeHook = [];
 var globalAfterHook = []; // 不准用来做修改数据的操作，支持业务做一些数据上报、监控等额外操作

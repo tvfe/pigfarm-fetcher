@@ -1,6 +1,6 @@
 {
   "name": "pigfarm-fetcher",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "以伪协议的形式配置你的请求",
   "main": "index.js",
   "scripts": {
