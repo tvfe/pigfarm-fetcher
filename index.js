@@ -33,11 +33,8 @@ function buildRequestMethod(config) {
 	var compiler = compilers[protocol];
 
 	var urltemplate = config.url;
-	var matcher;
-	while (matcher = urltemplate.match(/(\{([\w\.]*)\})/)) {
-		urltemplate = urltemplate.replace(matcher[1], '" + data.' + matcher[2] + ' + "');
-	}
-	urltemplate = '"' + urltemplate + '"';
+	urltemplate = urltemplate.replace(/(\{([\w\.]*)\})/g, '${data.$2}');
+	urltemplate = '`' + urltemplate + '`';
 
 	urltemplate = new Function("var data = arguments[0]; return " + urltemplate);
 	// 预处理传入的请求配置
