@@ -2,6 +2,7 @@
 var extend = require("extend");
 var debug = require('debug')("pigfarm-fetcher");
 var hrtime = require("process.hrtime");
+var get = require('lodash.get');
 
 var getProtocol = {
 	parse: function (str) {
@@ -32,11 +33,13 @@ function buildRequestMethod(config) {
 	// 找到对应的配置预处理器
 	var compiler = compilers[protocol];
 
-	var urltemplate = config.url;
-	urltemplate = urltemplate.replace(/(\{([\w\.]*)\})/g, '${data.$2}');
-	urltemplate = '`' + urltemplate + '`';
+	var urlstring = config.url;
+	var urltemplate = function (data) {
+			return urlstring.replace(/\{([\w\.]*)\}/g, function (a, b) { 
+				return get(data, b); 
+			});
+	}
 
-	urltemplate = new Function("var data = arguments[0]; return " + urltemplate);
 	// 预处理传入的请求配置
 	compiler && compiler(config);
 
